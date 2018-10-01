@@ -429,7 +429,7 @@ Type:
 % set calpha [atomselect top "alpha"] <br>
 % measure rgyr $calpha</p>
 
-Now compute with a script the radius of gyration for all the frames and save it into a file `my_first_script.tcl`
+Now compute with a script the radius of gyration for all frames and save it into a file `my_first_script.tcl`
 <p class="prompt prompt-tk"> Solution not available  ;) <br> </p>
 
 Let's improve our script by printing the results into a file. We will need to add a command to open a writeable file:
