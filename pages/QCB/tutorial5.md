@@ -384,7 +384,7 @@ im membrane protein simulation). Use the _CHARMm 27 ff_.
 After building it, the membrane, oriented with the _z_ axis normal to its
 surface, is loaded by default.
 
-<p class="prompt prompt-question">Center the membrane and same the new
+<p class="prompt prompt-question">Center the membrane and save the new
 coords as popc_TEMP.pdb </p>
 
 As a convention, the setup has the membrane parallel to the _xy_ plane, and the
