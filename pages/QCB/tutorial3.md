@@ -471,7 +471,7 @@ _AWK_ is a scripting language to manipulate text. It is particular useful for sm
 tasks that do not rqeuire a lot of lines of code.
 
 The basic syntax of an _awk_ instruction is:
-`awk '{some actions}' < input.file`.
+`awk ' condition {some actions}' < input.file`.
 _awk_ will loop over the lines of the file and perform the actions you wrote.
 The default variables you will need are:
 - `NF`: number of fields (i.e. columns separated as default by blank spaces);
