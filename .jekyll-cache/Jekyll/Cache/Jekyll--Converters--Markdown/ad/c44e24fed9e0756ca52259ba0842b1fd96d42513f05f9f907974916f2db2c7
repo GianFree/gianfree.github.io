@@ -1,0 +1,345 @@
+I"�J<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<p>In this session we will build the setup for an explicit solvent simulation,
+ analyse the configuration file, launch it on a cluster, and perform a small analysis of a system.<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote">1</a></sup></p>
+
+<h2 id="question-time-again">Question time, again</h2>
+<p>Let’s recap the so called <strong>MD machinery</strong>.</p>
+
+<p class="prompt prompt-question">What files do we need?</p>
+<p><img class="displayed" src="../../img/tut3/quiz.png" alt="" /></p>
+
+<h2 id="recap-of-last-tutorial">Recap of last tutorial</h2>
+<p>Last time we built the setup for an explicit solvent simulation.</p>
+
+<p class="prompt prompt-question">What steps did we follow?</p>
+
+<h2 id="explicit-solvent-part-2">Explicit solvent (part 2)</h2>
+<p>Let’s run the simulation. As a guideline, let’s remind the procedure
+we should follow for a production simulation:</p>
+<ol>
+  <li>minimisation;</li>
+  <li>heavy atoms of the protein harmonically restrained to their starting positions
+while the solvent equilibrates around the protein;</li>
+  <li>NVT simulation to go into the canonical ensemble;</li>
+  <li>Add the pressure.</li>
+</ol>
+
+<p>We will run an <em>NpT</em> simulation just to get accustomed to the new option.
+You already know what lines you should fill, but now we have two more things to add.</p>
+
+<p class="prompt prompt-attention">Use the centered box!!!</p>
+
+<p>First, now our system has also water molecules, therefore we need a new
+parameter file.
+It’s in the <em>VMD</em> plugin folder.</p>
+
+<p>Second, we have to set the center and the <code class="language-plaintext highlighter-rouge">a b c</code> of the box.
+The center should be <code class="language-plaintext highlighter-rouge">0.0 0.0 0.0</code> because of one of the previous commands,
+and the <em>cellVectors</em> are</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cellBasisVector1 _Delta x_  0.0  0.0
+cellBasisVector2   0.0   _Delta y_ 0.0
+cellBasisVector3   0.0  0.0  _Delta z
+</code></pre></div></div>
+
+<h2 id="thermostat">Thermostat</h2>
+<p>To perform an NVT simulation, we need to use a thermostat.
+For <em>NAMD</em>, the algorithm we will employ is the Langevin thermostat:</p>
+
+\[m \frac{d^2 x}{dt^2} = -\nabla U(x) - \gamma \frac{dx}{dt} + \sigma \xi\]
+
+<p>where \(\gamma\) is the damping coefficient, \(\xi\) is a random number with 0
+mean and standard deviation 1. The parameter \(\sigma\) is related to the
+damping coefficient by the fluctuation-dissipation theorem:</p>
+
+<p>\(\sigma^2 = 2 k_B T m \gamma\).</p>
+
+<p>What we will set is the <strong>damping coefficient</strong> \(\gamma\) (1/ps). The higher
+the value of this coefficient, the smaller are the fluctuations of the
+temperature. But then the system is highly perturbed.
+As a rule of thumb, the value of \(\gamma\) should be set to the smallest
+In general, a value between 1 and 10 ps\(^{-1}\) should be fine.
+value that preserves the wanted temperature (on average).</p>
+
+<p>We have also an option to couple the thermostat to the hydrogen atoms
+of the system. Since we constrain the same atoms, we will disable it.</p>
+
+<h2 id="launching-the-simulation">Launching the simulation</h2>
+<p>First launch the simulation with 1 core:</p>
+<p class="prompt prompt-shell">$ namd2 conf.namd &gt; lognameN.log &amp; </p>
+<p>Does it work?</p>
+<p class="prompt prompt-question">$ What is the problem related to?</p>
+
+<p>Now try to launch <code class="language-plaintext highlighter-rouge">namd</code> using more cores:</p>
+<p class="prompt prompt-shell">$ namd2 +pN conf.namd &gt; lognameN.log &amp; </p>
+<p>where <code class="language-plaintext highlighter-rouge">N</code> is the number of cores available.
+Launch the same simulation using 2,3,4 processes (change also the logfile name).
+In general you should be able to run with <code class="language-plaintext highlighter-rouge">4</code> cores,
+but remember that your computer needs some resources for the
+opetating system. Therefore, you may not see an increase in the performances
+for 3 processes to 4.</p>
+<p class="prompt prompt-attention">
+1) The output will be overwritten.<br />
+2) If you want to do a for-loop modify the command above (hint:<code class="language-plaintext highlighter-rouge">&amp;</code>)
+</p>
+
+<p>This time with 4 cores, the simulation takes ~50min for 100k steps. So, launch
+1000 time steps of simulation to check if it works.</p>
+
+<p>A longer trajectory (10 ns) in explicit solvent is available <a href="https://drive.google.com/file/d/1vP-DcCvr3YVEv0XCXkAtfWwhCAEOOFrn/view?usp=sharing">here</a>.</p>
+
+<h1 id="awk-detour">AWK detour</h1>
+<p><em>AWK</em> is a scripting language to manipulate text. It is particular useful for small
+tasks that do not rqeuire a lot of lines of code.</p>
+
+<p>The basic syntax of an <em>awk</em> instruction is:
+<code class="language-plaintext highlighter-rouge">awk ' condition {some actions}' &lt; input.file</code>.
+<em>awk</em> will loop over the lines of the file and perform the actions you wrote,
+if <em>condition</em> is satisfied. No condition implies <code class="language-plaintext highlighter-rouge">True</code>.
+The default variables you will need are:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">NF</code>: number of fields (i.e. columns separated as default by blank spaces);</li>
+  <li><code class="language-plaintext highlighter-rouge">NR</code>: number of rows (i.e. lines), the counter over which the default
+ loop is performed;</li>
+  <li><code class="language-plaintext highlighter-rouge">$0</code>: a whole line;</li>
+  <li><code class="language-plaintext highlighter-rouge">$i</code>: the i-th field;
+Moreover you can do operations before (<code class="language-plaintext highlighter-rouge">BEGIN</code>) and after (<code class="language-plaintext highlighter-rouge">END</code>)
+ the main loop.</li>
+</ul>
+
+<p>First, create a file with 1 column filled with numbers from 1 to 100.
+<strong>Hint</strong>: use a bash for-loop.</p>
+
+<p>Then, let’s compute the sum and the average.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">awk</span> <span class="s1">'BEGIN{sum=0} {sum += $1} END{print "sum:", sum, "\navg:", sum/NR}'</span> &lt; gauss_spicciame_casa.dat
+</code></pre></div></div>
+<p>See <em>Notes</em> for more information and fancy things<sup id="fnref:2" role="doc-noteref"><a href="#fn:2" class="footnote">2</a></sup>.</p>
+
+<p>Now that we know a bit of <em>awk</em>, let’s use it for our purposes.
+First let’s see how different numbers of cores affect the computation.</p>
+<p class="prompt prompt-shell">$ grep “Benchmark” logname1.log |
+ awk ‘{print $X, $Y, $Z}’ &gt; benchmark.dat </p>
+
+<p>Of course we can do the same for all the 4 logfiles.</p>
+<p class="prompt prompt-question">When do you have the ““best”” perfomances?</p>
+
+<p>We saw the <code class="language-plaintext highlighter-rouge">TIMING</code> and <code class="language-plaintext highlighter-rouge">Benchmark</code> lines.</p>
+<p class="prompt prompt-question">What is the difference according to you?</p>
+
+<p>We can also use <code class="language-plaintext highlighter-rouge">awk</code> to get rid of the unwanted columns in the <code class="language-plaintext highlighter-rouge">thermo.dat</code>
+we obtained before.</p>
+<p class="prompt prompt-question">Make a file with timestep and temperature only,
+using awk.<br />
+Try to compute the average of the same two quantities for the “equilibrated”
+ part with <em>awk</em></p>
+
+<h2 id="excursus">Excursus</h2>
+<h1 id="vadevecum-for-hpc-unitn">VadeVecum for HPC Unitn</h1>
+<p><em>ovvero</em></p>
+<h1 id="read-me-before-using-the-cluster">Read Me before using the cluster</h1>
+
+<p>This is a very small guide about launching jobs on HPC@Unitn.
+It is meant to be <em>helpful</em> for the master students who attended <em>Computational
+Biophysics</em>.</p>
+
+<p>You are supposed to have a basic knowledge of bash scripting language (i.e.
+  <code class="language-plaintext highlighter-rouge">cd</code>, <code class="language-plaintext highlighter-rouge">ls</code>, <code class="language-plaintext highlighter-rouge">mkdir</code> and so on…) and a decent OS (i.e. not Windows).</p>
+
+<p>For more info about the cluster,
+see <a href="https://sites.google.com/unitn.it/hpc/home">HPC website</a>.
+For more info about how to use the cluster and the batch scheduler, see section 2.</p>
+
+<p><strong>Important</strong>: the backslash <code class="language-plaintext highlighter-rouge">\</code> at the end of a line in a code block means
+that the line continues to the next line. Therefore, if you find</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"Ciao, sono un </span><span class="se">\</span><span class="s2">
+pokemon"</span>
+</code></pre></div></div>
+<p>you have to write in your file:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"Ciao, sono un pokemon"</span>
+</code></pre></div></div>
+
+<h1 id="1-how-to-connect">1. How to connect</h1>
+<p>In order to connect to the HPC cluster, you have to be connected to the
+university network:</p>
+<ul>
+  <li>you are connected to Unitn-x or similar (so you are in one of the
+university structures);</li>
+  <li>if you log from home, you need to use the university VPN (install the
+Pulse secure and google how to connect to unitn).</li>
+</ul>
+
+<p>Once one of the aforementioned criteria is fulfilled, then open a shell
+(Ctrl+Alt+t for Linux user) and type:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ssh &lt;your-unitn-username&gt;@hpc2.unitn.it
+</code></pre></div></div>
+<p>and then your password will be requested.</p>
+
+<p><strong>NOW</strong> you are connected to the login <em>computers</em>.
+<strong>DO NOT LAUNCH JOBS THERE</strong>: those computers are meant just for the job
+submission, since they are shared among all connected users and they have to
+be available.
+If you want to do something on the fly, using only few cores for few minutes,
+go interactively (see 2.1.3)</p>
+
+<h1 id="2-how-to-launch-a-job">2. How to launch a job</h1>
+<p>The cluster has a batch scheduler, a software that organises the execution of
+the jobs coming from different users with different requested resources.</p>
+
+<p>Basic dictionary (probably wrong):</p>
+<ul>
+  <li>core: part of a computer that does things</li>
+  <li>node: the whole computer (with multiple cores in it) connected with other
+computers with an <em>ethernet</em> cable;</li>
+  <li>walltime: maximum time you will be granted; if your job is not ended yet, it will be killed. So, choose it carefully and use the <code class="language-plaintext highlighter-rouge">Benchmark</code> NAMD provides you for a good estimate.</li>
+</ul>
+
+<p>On HPC@Unitn each node has a variable number of cores. We will use only the
+ nodes with GPUs.</p>
+
+<p><strong>We remind you that you should request maximum 20 cores
+(Herr Professor Doktor said 16, but at most ask for 20 without telling him)</strong>.
+As far as I know, you will not be able to run, statistically, those jobs that request more
+than 10 cores per nodes.
+Therefore, either you ask for 10 cores only on a single node (the following
+  line will be clear in a while):</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#PBS -l select=1:ncpus=10:mpiprocs=10:mem=40GB
+</code></pre></div></div>
+<p>or you ask for 10 cores on two nodes (using then 20 cores in total)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#PBS -l select=2:ncpus=10:mpiprocs=10:mem=40GB
+</code></pre></div></div>
+
+<p><strong>IMPORTANT</strong>: before launching <em>THE</em> simulation, just run small simulations (1000 timesteps maximum)
+asking for different numbers of cores. For example: launch 3 simulations requesting 5, 10 e 20 cores (<em>ça va sans dire</em>, set the walltime at 10 mins).
+Depending on your system, you will have a small gain in performances using 20 cores with
+respect to 10 cores. If this is your case, use only 10 cores, since it will speed
+up your time in queue.</p>
+
+<h1 id="21-what-to-do-in-practice">2.1 What to do in practice</h1>
+<p>In practice we will use the nodes with gpus to perform our computation.</p>
+
+<p class="prompt prompt-attention">We will monitor your usage of the cluster. <br />
+<br />
+Any not appropriate usage will be reported to the Admins and to the professor.</p>
+
+<h1 id="210-install-namd">2.1.0 Install NAMD</h1>
+<p>First we need to download <em>NAMD</em> in the CUDA version (multicore).
+When the download is completed, you can upload your file to the <code class="language-plaintext highlighter-rouge">home/</code> of your
+account using:</p>
+<p class="prompt prompt-shell">$ scp file your_username@hpc.unitn.it:</p>
+
+<p>As for your local version of <em>NAMD</em>, you have to install it (just extract it) and
+create an alias in your (on the cluster) <code class="language-plaintext highlighter-rouge">home</code>.</p>
+
+<p><code class="language-plaintext highlighter-rouge">scp</code> works as <code class="language-plaintext highlighter-rouge">cp</code>: if you want to upload or download a folder you have to use
+the option <code class="language-plaintext highlighter-rouge">-r</code>.</p>
+
+<p>Please note the <code class="language-plaintext highlighter-rouge">:</code> at the end of the command: the colon represents your <code class="language-plaintext highlighter-rouge">home</code>.
+If you want to save a file in another directory you should use</p>
+<p class="prompt prompt-shell">$ scp file
+ your_username@hpc.unitn.it:path/to/a/folder</p>
+
+<p>With a slight modified version of the command above you can upload all the
+files you need to perform the simulation.</p>
+
+<p class="prompt prompt-question">What files do you need?</p>
+
+<h1 id="211-create-batch-file">2.1.1 Create batch file</h1>
+<p>Go to your working folder, where you have the configuration file of namd,
+the <code class="language-plaintext highlighter-rouge">.psf</code> <code class="language-plaintext highlighter-rouge">.pdb</code> files and so on, and create a <code class="language-plaintext highlighter-rouge">submit_me.pbs</code> file as
+described below (the extension pbs is purely formal).</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/bash
+#PBS -l select=1:ncpus=10:mpiprocs=10:mem=10GB
+#PBS -l walltime=00:10:00
+#PBS -q short_gpuQ
+#PBS -N USE_AN_APPROPRIATE_NAME
+#PBS -o appropriate_name_out
+#PBS -e appropriate_name_err
+
+# This is a comment.
+# From the /home in the compute node we move to the
+# directory from which we launched the job
+# (and where you, hopefully, have your files)
+
+cd $PBS_O_WORKDIR
+
+namd2 +p10 +setcpuaffinity +devices 0 conf.namd &gt; log.log
+</code></pre></div></div>
+
+<p>After the file is ready, you submit the job with:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>qsub submit_me.pbs
+</code></pre></div></div>
+
+<p>Now you can wait, have a cup of coffee and pray.</p>
+
+<h4 id="212-what-to-modify">2.1.2 What to modify</h4>
+<p>All the lines starting with <code class="language-plaintext highlighter-rouge">#PBS</code> are <strong>NOT</strong> comments but instructions for
+the batch scheduler.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#PBS -l select=&lt;numberOfNodes&gt;:ncpus=&lt;numberOfCoresPerNode&gt;\
+:mpiprocs=&lt;sameNumberOfNcpus&gt;:mem=&lt;GBofRAMnecessary&gt;
+
+#PBS -l walltime=hours:minutes:seconds
+
+#PBS -q &lt;queue to be used&gt;
+
+#PBS -N &lt;name to be visualised using qstat&gt;
+
+#PBS -o/e &lt;file to redirect stdout and stderr&gt;
+</code></pre></div></div>
+<h4 id="213-interactive-job">2.1.3 Interactive job</h4>
+<p>On the login shell type:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>qsub -I -q &lt;queue&gt; -l select=1:ncpus=2:mpiprocs=2:mem=10GB,walltime=00:30:00
+</code></pre></div></div>
+<p>and then you can use the same commands you use in the <code class="language-plaintext highlighter-rouge">submit_me.pbs</code> file.</p>
+
+<h1 id="214-check-your-job">2.1.4 Check your job</h1>
+<p>To check the status of your submitted jobs, type in the shell:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>qstat -u $USER
+</code></pre></div></div>
+
+<h1 id="22-further-info">2.2 Further info</h1>
+
+<p>For more commands and the use of the batch scheduler:</p>
+<ul>
+  <li>go to <a href="https://sites.google.com/unitn.it/hpc/architetturahttps://sites.google.com/unitn.it/hpc/architetturaiiiOQOQOQOQ::wqqq:WQqqqqqOQOQOQOQ[200~https://sites.google.com/unitn.it/hpc/architetturahttps://sites.google.com/unitn.it/hpc/architettura">HPC@Unitn guide</a>;</li>
+  <li>type <code class="language-plaintext highlighter-rouge">man qsub</code> in your login shell, aka <em>RTFM</em>.</li>
+</ul>
+
+<h1 id="questions">Questions</h1>
+<p>For any <em>technical</em> questions, first check online (Google and StackOverflow
+  are your best friends).</p>
+
+<p>If in doubt, feel free (but not so free) to send me an e-mail:
+<code class="language-plaintext highlighter-rouge">gianfranco.abrusci@unitn.it</code></p>
+
+<p>Trivial questions, already discussed during the tutorial lessons, will be
+answered in a formally non-polite way.</p>
+
+<h2 id="go-ham-on-the-cluster">Go HAM on the cluster</h2>
+<p>Now you should have all the tools to perform a benchmark of your system.
+Use 2/5/10 cores to simulate 1000 steps of your system.</p>
+
+<p class="prompt prompt-question">Is there any difference?</p>
+<p class="prompt prompt-question">Compare the benchmark for the 2 cores with
+and without gpus.</p>
+
+<h2 id="explicit-vs-implicit">Explicit vs Implicit</h2>
+<p>Let’s compute the RMSD for the simulation with explicit solvent.
+Perform the average of the temperature for the two kinds of simulations.</p>
+
+<p class="prompt prompt-question">Compute the radius of gyration of
+the protein in implicit and explicit solvent.</p>
+
+<h1 id="notes">Notes</h1>
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1" role="doc-endnote">
+      <p>See <a href="/pages/QCB/tutorial3">tutorial 3</a> for the references. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:2" role="doc-endnote">
+      <p>Rtfm on <code class="language-plaintext highlighter-rouge">man awk</code>, or use Google/StackOverflow. <a href="#fnref:2" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+:ET

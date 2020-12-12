@@ -1,0 +1,533 @@
+I"d<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+<p>In this session we will build the setup, analyse the configuration file and
+perform a small analysis of a system.<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote">1</a></sup></p>
+
+<p>I encourage you to have a look at the sources provided you at the end of the
+tutorial.</p>
+
+<h3 id="getting-ready">Getting ready</h3>
+<p>For this tutorial, download the following <a href="https://drive.google.com/file/d/1kwt2D9-fQg17oQlVEYpsJlsZydxLxpRx/view?usp=sharing">source files</a>.
+You should know how to untar, but let’s remind it:</p>
+<p class="prompt prompt-shell">$ tar xvzf tutorial3.tar.gz</p>
+
+<p>There should be four folders: <code class="language-plaintext highlighter-rouge">bpti_trypsin/</code>, <code class="language-plaintext highlighter-rouge">common/</code>, <code class="language-plaintext highlighter-rouge">implicit/</code> and
+<code class="language-plaintext highlighter-rouge">explicit/</code>.</p>
+
+<h2 id="overview">Overview</h2>
+<p>Let’s recap the so called <strong>MD machinery</strong>.</p>
+
+<p class="prompt prompt-question">What files do we need?</p>
+<p><img class="displayed" src="../../img/tut3/quiz.png" alt="" /></p>
+
+<h2 id="par-file">PAR file</h2>
+<p>Last time we saw the several files, but we did not have a look at the parameters
+file.
+Let’s open <code class="language-plaintext highlighter-rouge">par_all36m_prot.prm</code> with <em>ViM</em>.
+For each interaction we saw last time there should be a section in the
+parameters file.</p>
+
+<p class="prompt prompt-question"> Do you see other potential functions not
+defined in the last lesson?</p>
+
+<p>We  mentioned that the force field has to be taken as a whole, since several
+approximations are hidden in the parameters definition.</p>
+
+<p>Other <em>parameters</em> must be set for the non-bonded interactions (the exact meaning
+  will be defined in other lessons):
+<img class="displayed" src="../../img/tut3/par_nb.png" alt="" /></p>
+
+<p>The meaning of these commands is not important for this tutorial, but the
+take-home message to remember is:</p>
+
+<p align="center">“You should <strong>not</strong> change parameters at your own will, unless
+ you want to introduce a systematic error in your simulation
+  and make them useless.”</p>
+
+<p>or, in another way:</p>
+<p align="center">First rule of the FF-Club is <strong>Do not mess with the FF</strong>.</p>
+<p><img class="displayed" src="../../img/tut3/newton_club.jpg" alt="" />
+ (Credits: <a href="https://www.facebook.com/LaScienzaCoatta/">La Scienza Coatta</a>)</p>
+
+<p>So, now we have an (almost) complete overview of the files we will deal with.
+<img class="displayed" src="../../img/tut3/quiz_done.png" alt="" />
+Congrats for the correct answer! ;)</p>
+
+<h2 id="the-problem">The Problem</h2>
+<p>Before launching a simulation, let’s see what are the time scale we can
+investigate. For now, with <em>MD</em> we mean <em>all-atom MD</em>.</p>
+
+<p><img class="displayed" src="../../img/tut3/time_scale.png" alt="" /></p>
+
+<p>From the picture above we see that we are constrained both spatially and in the
+simulated time, since the idea is to publish and we don’t have infinite resources
+(someone pays the bill for the electric power used by computers).</p>
+
+<p>When you decide to perform a simulation some questions should be answered in advance:</p>
+<ol>
+  <li>What process do I want to investigate? Is it feasible?</li>
+  <li>Do I have enough resources? (in general you hope so)</li>
+  <li>What level of detail do I need?</li>
+</ol>
+
+<p>We will keep these question in mind, but we will ignore them for now.</p>
+
+<h2 id="md-in-a-nutshell">MD in a nutshell</h2>
+<p>We have already seen that performing a molecular dynamics simulation means solving
+numerically the Newton’s equations of motion for each atoms in order to evolve the
+system at the next time step.</p>
+
+<p>To do so, we usually employ the (velocity-)Verlet algorithm, described below.</p>
+
+<p align="center">
+\(\begin{align*}
+    r_i(t+\Delta t) &amp; = r_i(t) + v_i(t) \Delta t+ \frac{\Delta t^2}{2m_i}F_i(t)\\
+    v_i(t+\Delta t) &amp; = v_i(t) + \frac{\Delta t}{2m_i}\big[F_i(t+\Delta t) + F_i(t)\big]\\
+\end{align*}\)
+</p>
+
+<p class="prompt prompt-question">What information do we need to implement the
+Verlet algorithm?</p>
+
+<p align="center">
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+suspense…
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+</p>
+
+<p>We will need to provide:</p>
+<ol>
+  <li>the initial positions of the atoms in the system;</li>
+  <li>the potential energy to compute the forces from;</li>
+  <li>the masses of the atoms;</li>
+  <li>the time step of integration;</li>
+  <li>the initial velocity of atoms.</li>
+</ol>
+
+<p>We already saw the first three requirements.</p>
+
+<p>The <strong>time step</strong> should be as large as possible, in order to achieve
+long simulated times. But (there is always a caveat) we do not want to have
+huge errors due to the integration. Moreover with super-long time step, atoms
+will move too much and they would overlap resulting  in a high repulsive force.</p>
+<p class="prompt prompt-question">How is the repulsive force implemented?</p>
+<p>The choice of the time step in based on the fastest motion in the system.
+As a rule of thumb, it should not be greater than 1/10 of this fastest motion.
+For all-atom simulation, the hydrogen vibrations in bonds with heavy
+atoms have a period of ~10 fs.
+Therefore we would use a timestep of 1 fs (<strong>maybe</strong>).</p>
+
+<p>The initial velocities are in general assigned from a Maxwell-Boltzmann
+distribution at the desired temperature, but they can be set to random values,
+extracted from a uniform distribution etc…
+<img class="displayed" src="../../img/tut3/mb.svg" alt="" /></p>
+<p align="center">M-B distribution (from <a href="https://commons.wikimedia.org/wiki/File:Maxwell-Boltzmann_distribution.svg">Wikipedia</a>).</p>
+
+<p>With all these pieces of information, we can perform a simulation in a,
+so called, <strong>NVE ensemble</strong> <sup id="fnref:3" role="doc-noteref"><a href="#fn:3" class="footnote">2</a></sup>, where the number of particles, the volume and
+the total energy of the system is conserved.</p>
+
+<p>But usually, we want to compute quantities that are experimentally measured. And
+in experiments what is fixed is not the energy but the temperature, or not the
+volume but the pressure.</p>
+
+<p>Therefore, we need to introduce two new ingredients that will be explained in the
+theoretical lessons: a <em>thermostat</em> and a <em>barostat</em>.
+These two pieces will help us in simulating our system in the correct ensemble,
+<strong>NVT</strong> and <strong>NpT</strong>.</p>
+
+<p>An ingredient that is not evident from the above discussion is the necessity to
+reproduce experimental results.</p>
+
+<p>The workflow of your simulation would look like this:</p>
+<ol>
+  <li>build the setup:</li>
+  <li>minimise the system;</li>
+  <li>equilibrate the system in <strong>NVT</strong>;</li>
+  <li>equilibrate the system in <strong>NpT</strong>;</li>
+  <li>go back to <strong>NVT</strong> to reduced the perturbation introduced in your system.</li>
+</ol>
+
+<p>Depending on the system, step <em>5</em> may not be performed.</p>
+
+<h2 id="bpti">BPTI</h2>
+<p>The <em>bovine pancreatic trypsin inhibitor</em> is a small protein extensively studied
+since the dawn of Molecular Dynamics. It inhibits the enzyme trypsin, responsible
+for the protein digestion.</p>
+
+<p><img class="displayed" src="../../img/tut3/bpti.png" alt="" /></p>
+
+<p>It was the first macromolecule of biological relevance simulated with MD with the
+seminal paper  <em>Dynamics of folded proteins</em> by McCammon, Gelin and Karplus.</p>
+
+<p>The BTPI binds the trypsin hindering the ability of cleaving other proteins.
+For more details, see the <em>Notes</em>.</p>
+
+<p>Load the complex in the <code class="language-plaintext highlighter-rouge">bpti_trypsin/</code> folder and check the <code class="language-plaintext highlighter-rouge">LYS15</code> of the bpti.</p>
+
+<h3 id="psf">PSF</h3>
+<p>Let’s start from the pdb of the protein alone from the previous tutorial.
+We will build again the <code class="language-plaintext highlighter-rouge">psf</code> with the <em>AutoPSF</em> plugin.</p>
+
+<p>Open <em>VMD</em> in your working folder <code class="language-plaintext highlighter-rouge">tutorial3</code>, and load your pdb file.
+Now go to <em>Extension -&gt; Modeling
+-&gt; Automatic PSF Builder</em>.
+A new window pops up:</p>
+
+<p><img class="displayed" src="../../img/tut3/autopsf.png" alt="" /></p>
+
+<p>If you click on <em>Options</em>, you see some flags.
+This leads us to a small correction to what was said last time.
+When building the <code class="language-plaintext highlighter-rouge">psf</code>, the position of the angles and dihedrals are
+recomputed according to the topology file. Therefore the minimisation has
+less impact on matching the <code class="language-plaintext highlighter-rouge">pdb</code> coordinates with the <em>ideal</em> 3D arrangement.</p>
+<p class="prompt prompt-attention">Still do the minimisation for the steric
+clashes!</p>
+
+<p>The steps we will perform is:</p>
+<ol>
+  <li>Check if our molecule is properly loaded;</li>
+  <li>Select the output name or use the default one;</li>
+  <li>Delete the default <code class="language-plaintext highlighter-rouge">top*</code> files and add our own;</li>
+  <li>Load the input files;</li>
+  <li>Guess and create the chains;</li>
+  <li>Check if our patches are automagically imported;</li>
+  <li>Finish the psf.</li>
+</ol>
+
+<p class="prompt prompt-attention">
+Check the correctness of the patches! </p>
+
+<p>It will create and load a new molecule, both <code class="language-plaintext highlighter-rouge">psf</code> and <code class="language-plaintext highlighter-rouge">pdb</code>.</p>
+
+<h2 id="implicit-solvent">Implicit solvent</h2>
+<p>Last time we performed few time steps of a simulation in vacuum. Of course,
+proteins do not <em>live</em> in the outer space in a <em>galaxy far, far away…</em>
+(unless we are studying <em>Midi-chlorian</em>, ça va sans dire).</p>
+
+<p>Proteins live in an aqueous environment, with ions, all kinds
+of ligands and so on and so forth. We would like to mimic as good as possible
+the biological environment by adding <strong>explicitly</strong> water molecules. This will
+be done in few steps. But in this section we will use an <strong>implicit solvent
+model</strong>.</p>
+
+<p><strong>Implicit Solvent</strong> model is a computational technique that introduces many
+effects due to solvent-solute interactions, such as screening effects,
+without using the water atoms. Removing the water molecules accelerates
+the simulation both in the exploration of the solute conformations,
+and in the <em>CPU time</em> required to actually do the computation.</p>
+
+<p class="prompt prompt-attention">Implicit models are less accurate than
+the explicit counterpart!</p>
+
+<p>In particular we will use the <em>Generalised Born implicit solvent</em> (<strong>GBIS</strong>)
+model. The details are left for the theoretical part of the course.
+The main idea is to screen more the atoms nearby the surface of the protein nearby
+the solvent (and give them a <em>small effective radius</em>) and the opposite for the buried atoms inside the protein.</p>
+
+<p>The parameters that we have to set are:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">gbis yes</code>: we want to use the <em>GBIS</em>;</li>
+  <li><code class="language-plaintext highlighter-rouge">cutoff 14</code>: for the electrostatic interactions (in Angstrom);</li>
+  <li><code class="language-plaintext highlighter-rouge">alphaCutoff 12</code>: to determine the appropriate radius (in Angstrom);</li>
+  <li><code class="language-plaintext highlighter-rouge">ionconcentration </code>: the default value is <code class="language-plaintext highlighter-rouge">0.2</code>.</li>
+</ul>
+
+<p>Let’s open the configuration file for this simulation and see what is inside.</p>
+<p class="prompt prompt-info">The section we will not discuss are defined by <br />
+# &lt;–! <br />
+… <br />
+# !–&gt; </p>
+
+<p>Fix the lines left blank in the configuration file, and then launch the
+simulation.</p>
+
+<p>This time we will slightly modify the launching command:</p>
+<p class="prompt prompt-shell">$ namd2 +p2 conf.namd &gt; bubu.log &amp;</p>
+
+<p>To check how much time the program needs, type in the shell:</p>
+<p class="prompt prompt-shell">$ grep “^TIMING” bubu.log </p>
+<p>For 100k steps it will take 20 minutes.</p>
+
+<p>Several files will be dumped from NAMD:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">.log</code> file;</li>
+  <li><code class="language-plaintext highlighter-rouge">.dcd</code>: trajectory;</li>
+  <li><code class="language-plaintext highlighter-rouge">.restart.*</code>: to restart the simulation;</li>
+  <li><code class="language-plaintext highlighter-rouge">.coor</code>: binary for coordinates;</li>
+  <li><code class="language-plaintext highlighter-rouge">.vel</code>: binary for velocities;</li>
+  <li><code class="language-plaintext highlighter-rouge">.xsc/.xst</code>: for the simulation box;</li>
+</ul>
+
+<p>Let’s start from the <code class="language-plaintext highlighter-rouge">.log</code> file.
+Let’s open it with <em>ViM</em>. There is a lot of information written in it, such as
+the initialisation of the system, checking the number of atoms, the existence of the
+files, the correctness of the parameters file, the recap of the setup defined
+in the configuration file.</p>
+
+<p>Search the word <code class="language-plaintext highlighter-rouge">Benchmark</code>. The data you find here are useful to establish
+the amount of resources (CPU/GPU) you should use.</p>
+
+<p>Then we can check the thermodynamic quantities we asked to compute on the fly.
+They will be written as row each defined timestep.
+The keywords are <code class="language-plaintext highlighter-rouge">ETITLE</code> to have the headers of the columns, and <code class="language-plaintext highlighter-rouge">ENERGY</code>
+for the actual values.</p>
+
+<p>While the simulation is running, you can write a <code class="language-plaintext highlighter-rouge">tcl</code> script to compute the
+<em>Root mean square displacement</em> of the protein. It is defined as, assuming
+that all the atoms have the same mass:</p>
+
+\[RMSD = \sqrt{\frac{1}{N} \sum_i^N (r_i(t) - r_i(0))^2}\]
+
+<p>Usually it is performed considering only the C\(\alpha\) and the following
+procedure is followed:</p>
+<ol>
+  <li>Align the structure of each frame to the first frame structure, in order
+to remove the roto-translation of the system;</li>
+  <li>Compute the RMSD.</li>
+</ol>
+
+<p>This quantity gives a qualitative estimate of the convergence of the simulation.
+We can define two segments of the total simulated time:</p>
+<ul>
+  <li>an <strong>equilibration</strong> phase that allows the system to reach the “"”equilibrium”””</li>
+  <li>a <strong>production</strong> phase from which we will compute the data we want.</li>
+</ul>
+
+<p>A criterion to check the equilibration of a system is to check for a plateau
+in the <em>rmsd</em>.</p>
+
+<p class="prompt prompt-question">Write the rmsd.tcl script</p>
+
+<p>Once the simulation is completed, let’s analyse the output in the <code class="language-plaintext highlighter-rouge">.log</code> file.</p>
+
+<p>In <em>VMD</em> go in <em>Extension -&gt; Analysis -&gt; NAMD Plot</em>.
+You should see this:
+<img class="displayed" src="../../img/tut3/namd_plot.png" alt="" /></p>
+
+<p>Load the <code class="language-plaintext highlighter-rouge">.log</code> file and analyse the <code class="language-plaintext highlighter-rouge">TEMP</code>.</p>
+
+<p class="prompt prompt-question">Can you explain the behaviour of the
+temperature?</p>
+<p>.</p>
+
+<p>We can also save the extracted info, but it is too cumbersome (imho).
+So let’s use the <code class="language-plaintext highlighter-rouge">shell</code>.</p>
+
+<p>The idea is to extract from the <code class="language-plaintext highlighter-rouge">log</code> file some lines. We will use the following
+commands:</p>
+<p class="prompt prompt-shell">$ grep “^ETITLE” bubu.log |
+tail -n 1 &gt; thermo.dat <br />
+$ grep “^ENERGY” bubu.log &gt; &gt; thermo.dat</p>
+
+<p>See if the file is properly written. And now let’s plot something.</p>
+<p class="prompt prompt-shell">$ gnuplot <br />
+&gt; set key autotitle columnheader<br />
+&gt; p “thermo.dat” u 2:13 w l </p>
+
+<p>Check the potential energy <code class="language-plaintext highlighter-rouge">14</code>, the total energy <code class="language-plaintext highlighter-rouge">12</code>.
+Compare in the same plot the temperature <code class="language-plaintext highlighter-rouge">13</code> with the average temperature <code class="language-plaintext highlighter-rouge">16</code>.</p>
+
+<p>A longer trajectory (10 ns) in implicit solvent is available <a href="https://drive.google.com/file/d/1CVi7MV-Cf9djRn3IjS4UgMVXHwYiBIgU/view?usp=sharing">here</a>.</p>
+
+<h2 id="explicit-solvent">Explicit Solvent</h2>
+<p>If we want to simulate a protein in a water box, we should build a water box
+(«Elementary, my dear Watson!»).</p>
+
+<p>The idea is to create a box
+To do so, we can use the <code class="language-plaintext highlighter-rouge">solvate</code> package in <em>VMD</em>. In the <em>Tk console</em>:</p>
+<p class="prompt prompt-tk">% solvate</p>
+<p>and let’s see the option we can use.</p>
+
+<p class="prompt prompt-question">Solvate the system!</p>
+<p>Rotate the system and add a padding of 9 Angstrom.</p>
+
+<p>The water box will define also our simulation box, a cube.
+Since we will use the periodic boundary conditions, we do not want that
+the protein interacts with its own image, so we cannot choose a padding too
+small. The protein should be <strong>at least</strong> 14 A from its image.</p>
+
+<p>This <strong>at least</strong> works only for this tutorial. For production runs, you should
+take into account the autocorrelation of the water molecules with themselves.
+Therefore, as a rule of thumb, you should use a padding of 18 A. Of course you
+can use a padding of 50 A, but it is a waste of resources.</p>
+
+<p>To perform a visual check, be sure that your solvated molecule is loaded as <em>top</em>.
+Let’s first shift to the center of the box with the command:</p>
+<p class="prompt prompt-tk">
+% set all [atomselect top “all”] <br />
+% $all moveby [vecinvert [measure center $all]]<br />
+% $all writepdb solvated_centered.pdb </p>
+<p>We wrote down the new coordinates because they will be useful in the following.</p>
+
+<p>Now that the protein is centered in <code class="language-plaintext highlighter-rouge">(0,0,0)</code>, let’s measure the extension of
+box:</p>
+<p class="prompt prompt-tk">
+% measure minmax $all
+</p>
+<p>This command gives us the <code class="language-plaintext highlighter-rouge">x_min, y_min, z_min</code> and <code class="language-plaintext highlighter-rouge">x_max, y_max, z_max</code> of
+the box. Taking the difference along each axis, \(\Delta x\) etc,
+gives use the three sizes of the box.</p>
+
+<p>Let’s tell <em>VMD</em> what the <strong>unit cell</strong> looks like:</p>
+<p class="prompt prompt-tk">
+% molinfo top set a <em>…</em> <br />
+% molinfo top set b <em>…</em> <br />
+% molinfo top set c <em>…</em>
+</p>
+<p>and visualise the images. Go to <em>Graphics -&gt; Representation -&gt; Periodic</em> and
+put a tick in <em>-X +X -Y +Y</em>.
+You can also measure the distance between atoms with the usual command <code class="language-plaintext highlighter-rouge">2</code>.</p>
+
+<p>Once the visual inspection is done, we would like to add ions, too.
+““<strong>Why do we need ions?</strong>” I hear you ask…</p>
+
+<p>There are two reasons for ions. The trivial one is because there are ions in
+solution in cells. The obscure, for now, reason is related to computation of the
+electrostatic interactions. But it will be clearer later in the course ;)</p>
+
+<p>This time we will use the GUI to <em>ionise</em> the system.
+First delete all the loaded molecules, and reload the <code class="language-plaintext highlighter-rouge">psf</code> and the new <code class="language-plaintext highlighter-rouge">pdb</code>.</p>
+
+<p>Go to <em>Extension -&gt; Modeling -&gt; Try-to-guess</em>.</p>
+
+<p>We will neutralise the charge in the system and add a 0.1 M ion concentration.</p>
+<p class="prompt prompt-question">Why is our system charged in the first place?</p>
+
+<!--
+
+Let's run the simulation. As a guideline, let's remind the procedure
+we should follow for a production simulation:
+1. minimisation;
+2. heavy atoms of the protein harmonically restrained to their starting positions
+while the solvent equilibrates around the protein;
+3. NVT simulation to go into the canonical ensemble;
+4. Add the pressure.
+
+We will run an _NpT_ simulation just to get accustomed to the new option.
+You already know what lines you should fill, but now we have two more things to add.
+
+<p class="prompt prompt-attention">Use the centered box!!!</p>
+
+First, now our system has also water molecules, therefore we need a new
+parameter file.
+It's in the _VMD_ plugin folder.
+
+Second, we have to set the center and the `a b c` of the box.
+The center should be `0.0 0.0 0.0` because of one of the previous commands,
+and the _cellVectors_ are
+```
+cellBasisVector1 _Delta x_  0.0  0.0
+cellBasisVector2   0.0   _Delta y_ 0.0
+cellBasisVector3   0.0  0.0  _Delta z_
+```
+
+First launch the simulation with 1 core:
+<p class="prompt prompt-shell">$ namd2 conf.namd > lognameN.log & </p>
+Does it work?
+<p class="prompt prompt-question">$ What is the problem related to?</p>
+
+
+Now try to launch `namd` using more cores:
+<p class="prompt prompt-shell">$ namd2 -pN conf.namd > lognameN.log & </p>
+where `N` is the number of cores available.
+Launch the same simulation using 2,3,4 processes (change also the logfile name).
+In general you should be able to run with `4` cores,
+but remember that your computer needs some resources for the
+opetating system. Therefore, you may not see an increase in the performances
+for 3 processes to 4.
+<p class="prompt prompt-attention">
+1) The output will be overwritten.<br>
+2) If you want to do a for-loop modify the command above (hint:`&`)
+</p>
+
+This time with 4 cores, the simulation takes ~50min for 100k steps. So, launch
+1000 time steps of simulation to check if it works.
+
+
+A longer trajectory (10 ns) in explicit solvent is available [here](https://drive.google.com/file/d/1vP-DcCvr3YVEv0XCXkAtfWwhCAEOOFrn/view?usp=sharing).
+
+
+# AWK detour
+_AWK_ is a scripting language to manipulate text. It is particular useful for small
+tasks that do not rqeuire a lot of lines of code.
+
+The basic syntax of an _awk_ instruction is:
+`awk ' condition {some actions}' < input.file`.
+_awk_ will loop over the lines of the file and perform the actions you wrote.
+The default variables you will need are:
+- `NF`: number of fields (i.e. columns separated as default by blank spaces);
+- `NR`: number of rows (i.e. lines), the counter over which the default
+ loop is performed;
+- `$0`: a whole line;
+- `$i`: the i-th field;
+Moreover you can do operations before (`BEGIN`) and after (`END`)
+ the main loop.
+First, create a file with 1 column filled with numbers from 1 to 100.
+**Hint**: use a bash for-loop.
+
+Then, let's compute the sum and the average.
+```bash
+awk 'BEGIN{sum=0} {sum += $1} END{print "sum:", sum, "\navg:", sum}' < gauss_spicciame_casa.dat
+```
+See _Notes_ for more information and fancy things[^2].
+
+[^2]: Rtfm on `man awk`, or use Google/StackOverflow.
+
+
+Now that we know a bit of _awk_, let's use it for our purposes.
+First let's see how different numbers of cores affect the computation.
+<p class="prompt prompt-shell">$ grep "Benchmark" logname1.log |
+ awk '{print $X, $Y, $Z}' > benchmark.dat </p>
+
+Of course we can do the same for all the 4 logfiles.
+<p class="prompt prompt-question">When do you have the ""best"" perfomances?</p>
+
+We saw the `TIMING` and `Benchmark` lines.
+<p class="prompt prompt-question">What is the difference according to you?</p>
+
+We can also use `awk` to get rid of the unwanted columns in the `thermo.dat`
+we obtained before.
+<p class="prompt prompt-question">Make a file with timestep and temperature only,
+using awk.<br>
+Try to compute the average of the same two quantities for the "equilibrated"
+ part with _awk_</p>
+
+Let's compute the RMSD for the simulation with explicit solvent.
+
+<p class="prompt prompt-question">Compute the radius of gyration of
+the protein in implicit and explicit solvent</p>
+
+
+-->
+<h1 id="further-notes">Further Notes</h1>
+<ol>
+  <li><a href="https://www.ks.uiuc.edu/Research/namd/2.12/ug.pdf">NAMD User guide</a></li>
+  <li>Molecular Modeling of Proteins, edited by Andreas Kukol.</li>
+</ol>
+
+<hr />
+<h1 id="notes">Notes</h1>
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1" role="doc-endnote">
+      <p>This tutorial is based on <a href="https://www.ks.uiuc.edu/Training/Tutorials/namd/namd-tutorial-unix.pdf">NAMD tutorial</a> (Unix version, but there is also a Windows version) and <a href="https://www.ks.uiuc.edu/Training/CaseStudies/pdfs/bpti.pdf">BPTI case study</a>. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:3" role="doc-endnote">
+      <p>Please notice it is written with the <strong>e</strong>, ens<strong>e</strong>mble. <a href="#fnref:3" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+:ET

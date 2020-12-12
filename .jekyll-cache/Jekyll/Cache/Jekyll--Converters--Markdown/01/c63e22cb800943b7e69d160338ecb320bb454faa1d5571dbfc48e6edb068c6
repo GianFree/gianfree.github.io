@@ -1,0 +1,128 @@
+I"Ë<p>Here you can find a small list of command you can use for <code class="language-plaintext highlighter-rouge">bash</code> and for <em>Vim</em>.
+It is still work in progress, so please be kind.</p>
+
+<h1 id="bash">Bash</h1>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="nb">ls
+mkdir
+mv
+cp
+pwd
+</span>man
+<span class="nb">echo
+</span><span class="k">for </span>i <span class="k">in</span> <span class="o">{</span>1..10<span class="o">}</span><span class="p">;</span> <span class="k">do</span> <span class="nt">-commands-</span> <span class="p">;</span> <span class="k">done</span>
+<span class="c">#this is a comment</span>
+<span class="nb">chmod </span>700 filename <span class="c">#to make filename executable</span>
+</code></pre></div></div>
+
+<h1 id="vim">ViM</h1>
+<p><em>ViM</em> has 3 modes:</p>
+<ol>
+  <li>by default, when you launch ViM you are in <strong>Normal</strong> mode: you cannot type
+words in it;</li>
+  <li>pressing <code class="language-plaintext highlighter-rouge">i</code> from <strong>Normal</strong> mode you go into <strong>Insert</strong> mode, and it works like a normale text editor;</li>
+  <li>pressing <code class="language-plaintext highlighter-rouge">v</code> from <strong>Normal</strong> mode, you go into the <strong>Visual</strong> mode.</li>
+</ol>
+
+<h2 id="normal-mode">Normal mode</h2>
+
+<p><strong>Normal</strong> mode is like you <em>home</em> mode: if in doubt, press <code class="language-plaintext highlighter-rouge">Esc</code> go go back
+to the <strong>Normal</strong> mode.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Movement</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>h</td>
+      <td>move the cursor to the left</td>
+    </tr>
+    <tr>
+      <td>j</td>
+      <td>move the cursor below</td>
+    </tr>
+    <tr>
+      <td>k</td>
+      <td>move the cursor above</td>
+    </tr>
+    <tr>
+      <td>l</td>
+      <td>move the cursor to the right</td>
+    </tr>
+    <tr>
+      <td>w</td>
+      <td>move forward to the beginning of the next word</td>
+    </tr>
+    <tr>
+      <td>e</td>
+      <td>move forward to the end of the word</td>
+    </tr>
+    <tr>
+      <td>b</td>
+      <td>move backward to the beginning of the previous word</td>
+    </tr>
+    <tr>
+      <td>0</td>
+      <td>move to the beginning of the line</td>
+    </tr>
+    <tr>
+      <td>$</td>
+      <td>move to the end of the line</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>You can move 3 characters on the right if you type <code class="language-plaintext highlighter-rouge">3l</code>, or
+5 lines below with <code class="language-plaintext highlighter-rouge">5j</code>.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>y</td>
+      <td>copy one character</td>
+    </tr>
+    <tr>
+      <td>x</td>
+      <td>cut one character</td>
+    </tr>
+    <tr>
+      <td>p</td>
+      <td>paste the character after</td>
+    </tr>
+    <tr>
+      <td>d</td>
+      <td>cut one character</td>
+    </tr>
+    <tr>
+      <td>r</td>
+      <td>replace the character (still in <strong>NORMAL mode</strong>)</td>
+    </tr>
+    <tr>
+      <td>c</td>
+      <td>change character (enter <strong>INSERT mode</strong>)</td>
+    </tr>
+    <tr>
+      <td>~</td>
+      <td>change uppercase into lowercase and viceversa</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>In <em>Vim</em> you can combine movement commands with action commands.</p>
+
+<p>The order is:
+<code class="language-plaintext highlighter-rouge">Action</code><em>n-times</em><code class="language-plaintext highlighter-rouge">movement</code>.</p>
+
+<p>So, we can delete 3 characters forward with <code class="language-plaintext highlighter-rouge">d3l</code>.</p>
+:ET

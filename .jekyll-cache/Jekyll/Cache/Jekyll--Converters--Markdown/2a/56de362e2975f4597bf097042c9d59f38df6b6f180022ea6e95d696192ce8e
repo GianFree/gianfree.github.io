@@ -1,0 +1,57 @@
+I"A<p>Welcome to the <em>Tutorial</em> section for the course of <strong>Computational Biophysics</strong> at the University of Trento for the a.y. 2018-2019.</p>
+
+<p>The tutorials will cover the laboratory segment of the course, and will be a variation on the <a href="https://www.ks.uiuc.edu/Training/Tutorials/">tutorials</a> and/or
+some <a href="https://www.ks.uiuc.edu/Training/CaseStudies/">case studies</a> of the <a href="https://www.ks.uiuc.edu/">Theoretical and Computational Biophysics Group</a> at the
+University of Illinois Urbana-Champaign. Other sources will be properly cited, whenever it is possible due to time constraints. My own additions will also be present.
+I warmly recommend the interest reader to take a look at the cited sources.</p>
+
+<p>All the errors in these sections will be on my own only. If you find any of them, along with bugs and suggestions, please let me know via email or PR on <a href="https://github.com/GianFree/gianfree.github.io">GitHub</a>.</p>
+
+<p>Throughout the tutorial we will use the following colour code<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote">1</a></sup> if needed.</p>
+
+<p class="prompt prompt-attention"> Pay attention to this!</p>
+<p class="prompt prompt-info"> Useful(?) information. </p>
+<p class="prompt prompt-link"> Useful links. </p>
+<p class="prompt prompt-question"> Think about this question. </p>
+<p class="prompt prompt-shell"> Bash shell commands/outputs</p>
+<p class="prompt prompt-tk"> VMD tcl/tk console.</p>
+<p>To improve readability, scripts will be formatted as:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="nb">echo</span> <span class="s2">"This is a bash script."</span>
+</code></pre></div></div>
+
+<h1 id="list-of-tutorials-and-sources">List of tutorials and sources</h1>
+
+<ol>
+  <li><a href="/pages/QCB/tutorial1">Visualisation</a></li>
+  <li><a href="/pages/QCB/tutorial2">Tria sunt genera fileorum</a></li>
+  <li><a href="/pages/QCB/tutorial3">Io NAMD e tu</a> (you should read <em>Io nammedi e tu</em>)</li>
+  <li><a href="/pages/QCB/tutorial4">NAMD@HPC</a></li>
+  <li><a href="/pages/QCB/tutorial5">Membrane Protein (part I)</a></li>
+  <li><a href="/pages/QCB/tutorial6">Membrane Protein (part II)</a></li>
+  <li><a href="/pages/QCB/tutorial7">MP (episode III) - MDFF</a></li>
+  <li><a href="/pages/QCB/tutorial8">Double O license</a> (to kill degrees of freedom)</li>
+  <li><a href="/pages/QCB/tutorial9">Analysis</a> (need to be prettified)</li>
+  <li><a href="/pages/QCB/tutorial10">A brief intro into Colvar</a></li>
+</ol>
+
+<h1 id="useful-hopefully-commands">Useful (hopefully) commands</h1>
+<ul>
+  <li><a href="/pages/cs">Bash and ViM cheatsheet</a></li>
+</ul>
+
+<h1 id="further-readings">Further readings</h1>
+<ul>
+  <li><a href="https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1000424">A paper on how to organise a computational biology project</a></li>
+</ul>
+
+<h1 id="notes">Notes</h1>
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1" role="doc-endnote">
+      <p>The idea is taken from the colour scheme used by the <a href="http://www.bonvinlab.org/education/molmod/">Bonvin Lab</a> for their course in Molecular Dynamics. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+:ET
