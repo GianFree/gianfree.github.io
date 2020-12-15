@@ -51,4 +51,9 @@ plugins:
 #   - vendor/gems/
 #   - vendor/ruby/
 
-#google_analytics:  UA-137975555-1
+logo: assets/free2dots.png
+
+show_excerpts: true
+page_excerpts: true
+
+google_analytics:  UA-137975555-1
