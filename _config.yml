@@ -13,8 +13,8 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: (gian)Free2Code
-email: gianfranco.abrusci@unitn.it
+title: (gian)Free2Dots
+email: gianfree2code@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   Aquaviva me genuit, tenet nunc Tridentum et Bononia me rapit.
   Cano MD, ludenda folia librique.
@@ -22,7 +22,10 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://gianfree.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: GianfQED
 github_username:  gianfree
-#linkedin_username: gianfranco-abrusci-a1a1a72a
+linkedin_username: gianfranco-abrusci
+twitch_username: free2dots
+youtube_username: free2dots
+
 # Build settings
 markdown: kramdown
 # Apply this change to _config.yml file
@@ -31,6 +34,7 @@ kramdown:
   parse_block_html: true
 theme: minima
 plugins:
+  - jekyll-feed
 
 #  - jekyll-feed
 
@@ -41,10 +45,15 @@ plugins:
 # exclude:
 #   - Gemfile
 #   - Gemfile.lock
-#   - node_modules
+#   - node_modules/
 #   - vendor/bundle/
 #   - vendor/cache/
 #   - vendor/gems/
 #   - vendor/ruby/
+
+logo: assets/free2dots.png
+
+show_excerpts: true
+page_excerpts: true
 
 google_analytics:  UA-137975555-1
