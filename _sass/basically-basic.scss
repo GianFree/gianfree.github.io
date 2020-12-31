@@ -1,0 +1,126 @@
+/*!
+ * Basically Basic Jekyll Theme 1.4.4
+ * Copyright 2017-2018 Michael Rose - mademistakes | @mmistakes
+ * Free for personal and commercial use under the MIT license
+ * https://github.com/mmistakes/jekyll-theme-basically-basic/blob/master/LICENSE
+*/
+
+@import "basically-basic/functions";
+@import "basically-basic/variables";
+@import "basically-basic/mixins";
+@import "basically-basic/vendor/breakpoint/breakpoint";
+@include breakpoint-set("to ems", true);
+@import "basically-basic/vendor/susy/susy";
+
+/* Core CSS */
+@import "basically-basic/reset";
+@import "basically-basic/base";
+@import "basically-basic/layout";
+@import "basically-basic/tables";
+
+/* Components */
+@import "basically-basic/global";
+@import "basically-basic/sidebar";
+@import "basically-basic/navigation";
+@import "basically-basic/search";
+@import "basically-basic/footer";
+@import "basically-basic/entries";
+@import "basically-basic/buttons";
+@import "basically-basic/icons";
+@import "basically-basic/intro";
+@import "basically-basic/navicons";
+@import "basically-basic/contact-lists";
+@import "basically-basic/syntax-highlighting";
+@import "basically-basic/responsive-embed";
+
+/* Utility classes */
+@import "basically-basic/utilities";
+
+/* Print */
+@import "basically-basic/print";
+
+#goog-wm-sb,.btn,.prompt {
+ margin-bottom:5px;
+ padding:4px 5px;
+ border-width:1px !important;
+ border-style:solid !important;
+ border-radius:3px;
+ width:100% !important;
+ overflow:auto !important;
+ border-bottom: 0px !important;
+}
+
+.prompt {
+ //font-size:16px;
+ font-size:1.0rem;
+ display:block;
+ text-align:left;
+ font-family:Courier New, "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+ background-color:#111;
+ color:#fff;
+ border-color:#111
+}
+
+.prompt-attention, .prompt-attention:hover {
+    background-color: #C64537;
+    color:#fff;
+    border-color:#C64537
+}
+
+.prompt-link, .prompt-link:hover {
+    background-color: #e0d914;
+    color:#000;
+    border-color:#e0d914
+
+}
+
+.prompt-shell, .prompt-shell:hover {
+    background-color:#4c3b59; //#503663;//#43076d;// #300a24;
+    color: #fff;
+    border-color: #4c3b59;//#300a24;
+}
+//.prompt-info, .prompt-info:hover {
+//    background-color:#308cbc;
+//    color:#fff;
+//    border-color:#308cbc;
+//}
+//.prompt-vmd,.prompt-vmd:hover {
+// background-color:#5cb85c;
+// color:#fff;
+// border-color:#5cb85c
+//}
+//
+//.prompt-question {
+// background-color:#dd8338;
+// color:#fff;
+// border-color:#dd8338
+//}
+.prompt-tk, .prompt-tk:hover {
+    background-color:#e6e6e6;
+    color:#1b53ad;
+    border-color:#e1e1e1;
+}
+.prompt-info, .prompt-info:hover {
+    background-color:#5cb85c;
+    color:#fff;
+    border-color:#5cb85c;
+}
+
+.prompt-question, .prompt-question:hover {
+    background-color:#308cbc;
+    color:#fff;
+    border-color:#308cbc;
+}
+
+IMG.displayed {
+    display: block;
+    margin-left: auto;
+    margin-right: auto
+  }
+
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+

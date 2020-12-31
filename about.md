@@ -1,12 +1,11 @@
 ---
-layout: page
-title: About
-permalink: /about/
+title: "About me"
+layout: about
 ---
 
-Hi, it's Gianfranco here!
+Hi, it's Gianfranco, aka J., here!
 
-I am a PhD in Computational Biophysics, a fancy name to say that I used
+I have a PhD in Computational Biophysics, a fancy name to say that I used
 computers to investigate how proteins move and work.
 
 "What is a protein?" you may ask. Well, in a nutshell a protein is a small
@@ -28,3 +27,5 @@ Thanks for passing by, and
 #TanteCareCose
 ```
 (best wishes!).
+
+

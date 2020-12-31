@@ -13,47 +13,82 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: (gian)Free2Dots
+lang: en-US
+title: Free2Dots
 email: gianfree2code@gmail.com
-description: >- # this means to ignore newlines until "baseurl:"
-  Aquaviva me genuit, tenet nunc Tridentum et Bononia me rapit.
-  Cano MD, ludenda folia librique.
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://gianfree.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: GianfQED
-github_username:  gianfree
+description: "Connecting the world, two dots at time."
+baseurl: "/"  # the subpath of your site, e.g. /blog
+url: ""  # the base hostname & protocol for your site, e.g. http://example.com
+author:
+  name: J.
+  #twitter: Towlette_Pettetucci
+  picture: /assets/images/free2dots.png
+  #
+#twitter_username: Towlette_Pettetucci
 linkedin_username: gianfranco-abrusci
+youtube_username: UC3srj4h272Frwdo8A1XXiww
 twitch_username: free2dots
-youtube_username: free2dots
+github_username: gianfree
+logo: /assets/icons/free2dots.png
+search: true
+search_full_content: true
+#search_provider: algolia
+#algolia:
+#  application_id: X3YT69NICB
+#  index_name: prod_FREE
+#  search_only_api_key: d9b4f46e0a198a66afa777132729899f
+#  powered_by: # false # true (default), false
+
+# Liquid
+liquid:
+  error_mode: strict
 
 # Build settings
 markdown: kramdown
-# Apply this change to _config.yml file
-kramdown:
-  # parse markdown inside block-level HTML tag
-  parse_block_html: true
-theme: minima
-plugins:
+theme: jekyll-theme-basically-basic
+plugins: # previously gems
   - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-paginate
+feed:
+  path: atom.xml
 
-#  - jekyll-feed
+# Pagination - https://jekyllrb.com/docs/pagination/
+paginate: 10
+paginate_path: /page:num/
 
-#show_downloads: true
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
 # to override the default setting.
 # exclude:
 #   - Gemfile
 #   - Gemfile.lock
-#   - node_modules/
+#   - node_modules
 #   - vendor/bundle/
 #   - vendor/cache/
 #   - vendor/gems/
 #   - vendor/ruby/
 
-logo: assets/free2dots.png
+# Collections
+collections:
+  recipes:
+    output: true
+    permalink: /:collection/:path/
 
-show_excerpts: true
-page_excerpts: true
-
-google_analytics:  UA-137975555-1
+# Front Matter Defaults
+defaults:
+  # _posts
+  - scope:
+      path: "_posts"
+      type: posts
+    values:
+      layout: post
+      read_time: true
+  # _recipes
+  - scope:
+      path: "_recipes"
+      type: recipes
+    values:
+      layout: post
+      read_time: true

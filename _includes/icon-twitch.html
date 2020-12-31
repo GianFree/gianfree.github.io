@@ -1,0 +1,4 @@
+<a href="https://www.twitch.tv/{{ include.username }}">
+  <span class="icon icon--twitch">{% include icon-twitch.svg %}</span>
+  <span class="label">{{ include.label | default: include.username }}</span>
+</a>
