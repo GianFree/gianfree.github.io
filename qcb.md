@@ -3,6 +3,10 @@ title: QCB 18-19
 layout: page
 permalink: /QCB/
 ---
+
+<p class="prompt prompt-attention"> The current version of this course can be
+found [here](https://cbp-unitn.gitlab.io/).</p>
+
 Welcome to the *Tutorial* section for the course of **Computational Biophysics** at the University of Trento for the a.y. 2018-2019.
 
 The tutorials will cover the laboratory segment of the course, and will be a variation on the [tutorials](https://www.ks.uiuc.edu/Training/Tutorials/) and/or
@@ -41,7 +45,6 @@ echo "This is a bash script."
 7. [MP (episode III) - MDFF](/QCB/tutorial7)
 8. [Double O license](/QCB/tutorial8) (to kill degrees of freedom)
 9. [Analysis](/QCB/tutorial9) (need to be prettified)
-10. [A brief intro into Colvar](/QCB/tutorial10)
 
 # Useful (hopefully) commands
 - [Bash and ViM cheatsheet](/pages/cs)
