@@ -4,7 +4,7 @@ source "https://rubygems.org"
 gem "jekyll-theme-basically-basic"
 
 # Jekyll plugins
-group :jekyll_plugins do
+gem"github-pages", group :jekyll_plugins do
   gem "jekyll-feed"
   gem "jekyll-seo-tag"
   gem "jekyll-sitemap"
