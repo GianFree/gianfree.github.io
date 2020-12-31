@@ -1,10 +1,12 @@
 source "https://rubygems.org"
 
 # use local theme gem for testing
-gem "jekyll-theme-basically-basic"
+#gem "jekyll-theme-basically-basic"
 
 # Jekyll plugins
-gem"github-pages", group :jekyll_plugins do
+gem "github-pages"
+
+group :jekyll_plugins do
   gem "jekyll-feed"
   gem "jekyll-seo-tag"
   gem "jekyll-sitemap"
